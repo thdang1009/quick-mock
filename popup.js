@@ -62,9 +62,12 @@ tabButtons.forEach(button => {
 
 // Load saved projects
 const loadProjects = () => {
-  chrome.runtime.sendMessage({ action: 'getMockProjects' }, (response) => {
-    projects = response.projects || [];
-    renderProjects();
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: 'getMockProjects' }, (response) => {
+      projects = response.projects || [];
+      renderProjects();
+      resolve(projects);
+    });
   });
 };
 
@@ -105,6 +108,15 @@ const showProjectDetails = (project) => {
   
   // Render endpoints
   endpointsList.innerHTML = '';
+  
+  // Add delete project button
+  const deleteProjectBtn = document.createElement('button');
+  deleteProjectBtn.className = 'small-btn danger-btn';
+  deleteProjectBtn.textContent = 'Delete Project';
+  deleteProjectBtn.style.marginBottom = '16px';
+  deleteProjectBtn.addEventListener('click', () => deleteProject(project));
+  endpointsList.appendChild(deleteProjectBtn);
+  
   if (project.endpoints && project.endpoints.length > 0) {
     project.endpoints.forEach(endpoint => {
       const endpointItem = document.createElement('div');
@@ -139,11 +151,10 @@ const showProjectDetails = (project) => {
       });
     });
   } else {
-    endpointsList.innerHTML = `
-      <div class="empty-state">
-        <p>No endpoints in this project</p>
-      </div>
-    `;
+    const emptyState = document.createElement('div');
+    emptyState.className = 'empty-state';
+    emptyState.innerHTML = '<p>No endpoints in this project</p>';
+    endpointsList.appendChild(emptyState);
   }
 };
 
@@ -323,17 +334,22 @@ saveToProjectBtn.addEventListener('click', () => {
   saveProjectForm.reset();
   newProjectFields.style.display = 'block';
   
-  // Load projects into select
-  projectSelect.innerHTML = '<option value="new">Create New Project</option>';
-  projects.forEach(project => {
-    const option = document.createElement('option');
-    option.value = project.id;
-    option.textContent = project.name;
-    projectSelect.appendChild(option);
+  // Get latest projects from storage first, then populate dropdown
+  chrome.runtime.sendMessage({ action: 'getMockProjects' }, (response) => {
+    projects = response.projects || [];
+    
+    // Load projects into select
+    projectSelect.innerHTML = '<option value="new">Create New Project</option>';
+    projects.forEach(project => {
+      const option = document.createElement('option');
+      option.value = project.id;
+      option.textContent = project.name;
+      projectSelect.appendChild(option);
+    });
+    
+    // Show modal
+    saveProjectModal.classList.remove('hidden');
   });
-  
-  // Show modal
-  saveProjectModal.classList.remove('hidden');
 });
 
 // Project select change
@@ -478,15 +494,74 @@ function deleteEndpoint(endpoint) {
   });
 }
 
-// Add some example JSON to the textarea
-jsonInput.value = JSON.stringify({
-  data: {
-    id: 1,
-    name: "Example Product",
-    price: 19.99,
-    inStock: true,
-    tags: ["electronics", "gadgets"]
-  },
-  success: true,
-  message: "Product retrieved successfully"
-}, null, 2);
+// Delete project
+function deleteProject(project) {
+  if (!confirm(`Are you sure you want to delete the project "${project.name}"?`)) return;
+  
+  chrome.runtime.sendMessage({
+    action: 'deleteMockProject',
+    projectId: project.id
+  }, (response) => {
+    if (response.success) {
+      projects = response.projects;
+      projectDetailView.classList.add('hidden');
+      projectsContainer.classList.remove('hidden');
+      renderProjects();
+      showNotification('Project deleted!');
+    } else {
+      showError('Failed to delete project');
+    }
+  });
+}
+
+// Load saved form state from storage when popup opens
+document.addEventListener('DOMContentLoaded', () => {
+  // Load projects first, regardless of which tab is active
+  // This ensures projects are available for the dropdown even on the Create tab
+  loadProjects();
+  
+  chrome.storage.local.get(['formState'], (result) => {
+    if (result.formState) {
+      const { json, method, statusCode, delay, expiration } = result.formState;
+      
+      if (json) jsonInput.value = json;
+      if (method) methodSelect.value = method;
+      if (statusCode) statusCodeInput.value = statusCode;
+      if (delay) delayInput.value = delay;
+      if (expiration) expirationSelect.value = expiration;
+    } else {
+      // Default example JSON if no saved state
+      jsonInput.value = JSON.stringify({
+        data: {
+          id: 1,
+          name: "Example Product",
+          price: 19.99,
+          inStock: true,
+          tags: ["electronics", "gadgets"]
+        },
+        success: true,
+        message: "Product retrieved successfully"
+      }, null, 2);
+    }
+  });
+});
+
+// Save form state whenever inputs change
+const saveFormState = () => {
+  const formState = {
+    json: jsonInput.value,
+    method: methodSelect.value,
+    statusCode: statusCodeInput.value,
+    delay: delayInput.value,
+    expiration: expirationSelect.value
+  };
+  
+  chrome.storage.local.set({ formState });
+};
+
+// Add event listeners to save form state on input change
+jsonInput.addEventListener('input', saveFormState);
+methodSelect.addEventListener('change', saveFormState);
+statusCodeInput.addEventListener('input', saveFormState);
+delayInput.addEventListener('input', saveFormState);
+expirationSelect.addEventListener('change', saveFormState);
