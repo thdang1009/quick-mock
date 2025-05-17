@@ -365,6 +365,29 @@ pre {
   gap: 4px;
 }
 
+/* Notification Styles */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--success-color);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  z-index: 100;
+  animation: fade-in-out 2s forwards;
+  white-space: nowrap;
+}
+
+@keyframes fade-in-out {
+  0% { opacity: 0; transform: translate(-50%, 20px); }
+  15% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
 /* Modal Styles */
 .modal {
   position: fixed;

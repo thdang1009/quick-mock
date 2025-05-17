@@ -172,6 +172,12 @@ mockForm.addEventListener('submit', (e) => {
     // Validate JSON
     JSON.parse(jsonInput.value);
     
+    // Show loading state
+    const generateBtn = document.getElementById('generate-btn');
+    const originalText = generateBtn.textContent;
+    generateBtn.textContent = 'Creating...';
+    generateBtn.disabled = true;
+    
     // Create endpoint
     chrome.runtime.sendMessage({
       action: 'createMockEndpoint',
@@ -181,9 +187,19 @@ mockForm.addEventListener('submit', (e) => {
       delay: parseInt(delayInput.value),
       expiresIn: parseInt(expirationSelect.value)
     }, (response) => {
+      // Reset button
+      generateBtn.textContent = originalText;
+      generateBtn.disabled = false;
+      
       if (response.success) {
         currentEndpoint = response.details;
         currentEndpoint.url = response.endpoint;
+        
+        // Store API response data if available
+        if (response.apiResponse) {
+          currentEndpoint.apiResponse = response.apiResponse;
+          console.log('Backend API response:', response.apiResponse);
+        }
         
         // Show result
         endpointUrlInput.value = response.endpoint;
@@ -191,6 +207,9 @@ mockForm.addEventListener('submit', (e) => {
         
         // Show code examples
         updateCodeExample('curl');
+        
+        // Show success notification
+        showNotification('Endpoint created successfully on the server!');
       } else {
         showError(response.error);
       }
@@ -259,11 +278,17 @@ const copyToClipboard = (text) => {
 
 // Show notification
 const showNotification = (message) => {
+  // Remove any existing notifications
+  const existingNotifications = document.querySelectorAll('.notification');
+  existingNotifications.forEach(notification => notification.remove());
+  
+  // Create new notification
   const notification = document.createElement('div');
   notification.className = 'notification';
   notification.textContent = message;
   document.body.appendChild(notification);
   
+  // Remove notification after animation completes (2 seconds)
   setTimeout(() => {
     notification.remove();
   }, 2000);
@@ -271,9 +296,23 @@ const showNotification = (message) => {
 
 // Show error
 const showError = (message) => {
-  // Implement error notification
   console.error(message);
-  alert(message);
+  
+  // Remove any existing notifications
+  const existingNotifications = document.querySelectorAll('.notification, .error-notification');
+  existingNotifications.forEach(notification => notification.remove());
+  
+  // Create error notification
+  const notification = document.createElement('div');
+  notification.className = 'notification error-notification';
+  notification.textContent = message;
+  notification.style.backgroundColor = 'var(--error-color)';
+  document.body.appendChild(notification);
+  
+  // Remove notification after animation completes
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
 };
 
 // Save to project button
@@ -375,7 +414,7 @@ createFirstProjectBtn?.addEventListener('click', showNewProjectForm);
 function showNewProjectForm() {
   // Create a mock endpoint if we don't have one
   if (!currentEndpoint) {
-    const id = 'temp-' + Date.now();
+    const id = 'temp-' + Math.random().toString(36).substring(2, 15) + Date.now();
     currentEndpoint = {
       id: id,
       url: 'https://dangtrinh.site/mock/' + id,

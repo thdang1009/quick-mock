@@ -4,8 +4,8 @@ const mockEndpoints = new Map();
 // TTL for temporary endpoints (15 minutes by default)
 const DEFAULT_TTL = 15 * 60 * 1000;
 
-// Mock server base URL
-const MOCK_SERVER_BASE = "https://dangtrinh.site/mock";
+// Mock server base URL (local development server)
+const MOCK_SERVER_BASE = "http://localhost:3030";
 
 // Generate unique ID for endpoints
 const generateEndpointId = () => {
@@ -34,22 +34,47 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         expiresAt: expiresIn ? Date.now() + expiresIn : Date.now() + DEFAULT_TTL,
       };
       
-      // Store in memory
-      mockEndpoints.set(endpointId, endpoint);
-      
-      // Schedule cleanup
-      setTimeout(() => {
-        mockEndpoints.delete(endpointId);
-      }, endpoint.expiresAt - endpoint.createdAt);
-      
-      // Generate URL
-      const mockUrl = `${MOCK_SERVER_BASE}/mock/${endpointId}`;
-      
-      sendResponse({
-        success: true,
-        endpoint: mockUrl,
-        details: endpoint
+      // Make API call to create the endpoint on server
+      fetch(`${MOCK_SERVER_BASE}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(endpoint)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to create mock endpoint');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Store in memory
+        mockEndpoints.set(endpointId, endpoint);
+        
+        // Schedule cleanup
+        setTimeout(() => {
+          mockEndpoints.delete(endpointId);
+        }, endpoint.expiresAt - endpoint.createdAt);
+        
+        // Generate URL
+        const mockUrl = `${MOCK_SERVER_BASE}/mock/${endpointId}`;
+        
+        sendResponse({
+          success: true,
+          endpoint: mockUrl,
+          details: endpoint,
+          apiResponse: data
+        });
+      })
+      .catch(error => {
+        console.error('Error creating mock endpoint:', error);
+        sendResponse({
+          success: false,
+          error: "Failed to create mock endpoint: " + error.message
+        });
       });
+      
     } catch (error) {
       sendResponse({
         success: false,
