@@ -71,7 +71,7 @@ QuickMock uses a local Node.js server that runs on port 3030. To set up and run 
 
 The server will be available at `http://localhost:3030` and will:
 - Create endpoints via POST requests to `/`
-- Serve mock responses at `/:endpointId`
+- Serve mock responses at `mock/:endpointId`
 - List all endpoints at `/list`
 - Delete endpoints via DELETE requests to `/:endpointId`
 
