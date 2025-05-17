@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickMock Options</title>
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-hover: #4f46e5;
+      --text-color: #1e293b;
+      --light-text: #64748b;
+      --border-color: #e2e8f0;
+      --background: #ffffff;
+      --secondary-bg: #f8fafc;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      color: var(--text-color);
+      background-color: var(--background);
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    
+    .logo-icon {
+      font-size: 32px;
+    }
+    
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    .form-section {
+      background-color: var(--secondary-bg);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .description {
+      font-size: 14px;
+      color: var(--light-text);
+      margin-top: 4px;
+    }
+    
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    
+    .success-message {
+      background-color: #ecfdf5;
+      color: #047857;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="logo-icon">🧪</span>
+    <h1>QuickMock Options</h1>
+  </div>
+  
+  <div id="success-message" class="success-message">
+    Settings saved successfully!
+  </div>
+  
+  <form id="options-form">
+    <div class="form-section">
+      <h2>Mock Server Settings</h2>
+      
+      <div class="form-group">
+        <label for="mock-server-url">Mock Server URL</label>
+        <input type="url" id="mock-server-url" placeholder="https://dangtrinh.site/mock">
+        <p class="description">The base URL for your mock server. Leave as default for standard functionality.</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="default-ttl">Default TTL for Temporary Endpoints</label>
+        <select id="default-ttl">
+          <option value="900000">15 minutes</option>
+          <option value="3600000">1 hour</option>
+          <option value="86400000">1 day</option>
+          <option value="604800000">1 week</option>
+        </select>
+        <p class="description">How long temporary endpoints will stay active before expiring.</p>
+      </div>
+    </div>
+    
+    <div class="form-section">
+      <h2>Default Response Settings</h2>
+      
+      <div class="form-group">
+        <label for="default-status-code">Default Status Code</label>
+        <select id="default-status-code">
+          <option value="200">200 - OK</option>
+          <option value="201">201 - Created</option>
+          <option value="400">400 - Bad Request</option>
+          <option value="401">401 - Unauthorized</option>
+          <option value="404">404 - Not Found</option>
+          <option value="500">500 - Server Error</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="default-delay">Default Response Delay (ms)</label>
+        <input type="number" id="default-delay" min="0" max="10000" value="0">
+        <p class="description">Simulated network delay in milliseconds.</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="default-content-type">Default Content-Type</label>
+        <select id="default-content-type">
+          <option value="application/json">application/json</option>
+          <option value="text/plain">text/plain</option>
+          <option value="application/xml">application/xml</option>
+          <option value="text/html">text/html</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button type="button" id="reset-btn">Reset to Defaults</button>
+      <button type="submit">Save Settings</button>
+    </div>
+  </form>
+  
+  <script src="options.js"></script>
+</body>
+</html>

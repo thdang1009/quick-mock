@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickMock - Instant API Mocking</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🧪</span>
+        <h1>QuickMock</h1>
+      </div>
+      <nav class="tabs">
+        <button class="tab-button active" data-tab="create-tab">Create</button>
+        <button class="tab-button" data-tab="projects-tab">Projects</button>
+      </nav>
+    </header>
+
+    <main class="content">
+      <!-- Create Mock Tab -->
+      <section id="create-tab" class="tab-content active">
+        <form id="mock-form">
+          <div class="form-group">
+            <label for="json-input">JSON Response</label>
+            <textarea id="json-input" rows="8" placeholder='{ "message": "Hello world" }'></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="method-select">Method</label>
+              <select id="method-select">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+                <option value="PATCH">PATCH</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="status-code">Status Code</label>
+              <input type="number" id="status-code" min="100" max="599" value="200">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="delay">Delay (ms)</label>
+              <input type="number" id="delay" min="0" max="10000" value="0">
+            </div>
+            <div class="form-group">
+              <label for="expiration">Expiration</label>
+              <select id="expiration">
+                <option value="900000">15 minutes</option>
+                <option value="3600000">1 hour</option>
+                <option value="86400000">1 day</option>
+                <option value="0">Permanent</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" id="format-json-btn">Format JSON</button>
+            <button type="submit" id="generate-btn" class="primary-btn">Generate Endpoint</button>
+          </div>
+        </form>
+        
+        <div id="result-container" class="hidden">
+          <div class="result-header">
+            <h3>Your Mock Endpoint</h3>
+            <button id="save-to-project-btn" class="small-btn">Save to Project</button>
+          </div>
+          
+          <div class="result-url-container">
+            <input type="text" id="endpoint-url" readonly>
+            <button id="copy-url-btn" class="icon-btn">📋</button>
+          </div>
+          
+          <div class="code-examples">
+            <h4>Code Examples</h4>
+            <div class="example-tabs">
+              <button class="example-tab active" data-example="curl">cURL</button>
+              <button class="example-tab" data-example="fetch">Fetch</button>
+              <button class="example-tab" data-example="axios">Axios</button>
+            </div>
+            
+            <div class="code-block-container">
+              <pre id="code-example"></pre>
+              <button id="copy-code-btn" class="icon-btn">📋</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Projects Tab -->
+      <section id="projects-tab" class="tab-content">
+        <div class="projects-header">
+          <h2>Saved Projects</h2>
+          <button id="create-project-btn" class="small-btn">New Project</button>
+        </div>
+        
+        <div id="projects-container">
+          <div class="empty-state">
+            <p>No saved projects yet</p>
+            <button id="create-first-project-btn" class="primary-btn">Create Your First Project</button>
+          </div>
+        </div>
+        
+        <!-- Project details view (hidden by default) -->
+        <div id="project-detail-view" class="hidden">
+          <div class="detail-header">
+            <button id="back-to-projects-btn" class="icon-btn">←</button>
+            <h3 id="project-name">Project Name</h3>
+            <button id="edit-project-btn" class="small-btn">Edit</button>
+          </div>
+          
+          <div id="endpoints-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>QuickMock v1.0.0 | <a href="#" id="open-options">Options</a></p>
+    </footer>
+  </div>
+
+  <!-- Modals -->
+  <div id="save-project-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Save to Project</h3>
+      <form id="save-project-form">
+        <div class="form-group">
+          <label for="project-select">Select Project</label>
+          <select id="project-select">
+            <option value="new">Create New Project</option>
+          </select>
+        </div>
+        
+        <div id="new-project-fields">
+          <div class="form-group">
+            <label for="new-project-name">Project Name</label>
+            <input type="text" id="new-project-name" placeholder="My API Project">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="endpoint-path">Endpoint Path</label>
+          <input type="text" id="endpoint-path" placeholder="/api/users">
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" id="cancel-save-btn">Cancel</button>
+          <button type="submit" class="primary-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html> 

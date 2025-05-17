@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "QuickMock",
+  "description": "Instant API Response Generator for frontend development and testing",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/quick-mock.jpg",
+      "48": "icons/quick-mock.jpg",
+      "128": "icons/quick-mock.jpg"
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+} 
