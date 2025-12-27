@@ -96,3 +96,10 @@ The API expects a JSON payload with:
 
 - Thanks to all the open-source projects that made QuickMock possible
 - Inspired by the need for quick, reliable mock APIs during frontend development
+
+## Last text:
+### I will archive this project due to:
+- Không còn động lực nội tại
+- No body will use this
+### What I learn from this.
+- Hãy làm market research kỹ trước khi làm, nếu còn đất diễn/chỗ cần enhance hãy làm đúng chỗ đó. Kiểu có tool đó trên thị trường và nó đủ xài rồi thì hãy dùng chỉ code mới khi có thể enhance được nhiều khía cạnh
